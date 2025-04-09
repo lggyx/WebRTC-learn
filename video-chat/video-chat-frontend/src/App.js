@@ -1,5 +1,5 @@
 import { useEffect,useRef } from "react";
-import { connectionWithSocket } from "./utils/wssConnection/wssConnection";
+import { connectWithSocket } from "./utils/wssConnection/wssConnection";
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import LoginPage from "./pages/LoginPage/LoginPage";
 import Dashboard from "./pages/Dashboard/Dashboard";
@@ -10,7 +10,7 @@ function App() {
       firstRenderRef.current = false;
       return;
     }
-    connectionWithSocket();
+    connectWithSocket();
   },[]);
   return (
     <Router>

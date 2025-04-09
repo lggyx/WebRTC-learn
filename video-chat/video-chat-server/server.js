@@ -1,32 +1,44 @@
-//引入依赖项
+//引入模块
 const express = require('express');
-const socket= require('socket.io');
-const cors=require('cors');
-const {v4: uuidv4} = require('uuid');
+const socket = require('socket.io');
+const cors = require('cors');
+require('uuid');
 
 //服务器初始化
 const app = express();
-const PORT=process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
-//cors包解决跨域问题
+//cors包解决跨越访问问题
 app.use(cors);
 
 //监听端口号启动服务器
 const server = app.listen(PORT, () => {
-    console.log(`服务运行在端口：${PORT}`);
+  console.log(`服务器正在${PORT}端口号运行...`);
 });
 
-//传递server对象，创建socket.io实例
+//传递server对象，初始化io实例
 const io = socket(server, {
-    cors: {
-        origin: '*',// 允许所有来源地址
-        methods: ['GET', 'POST'],// 允许的请求方法
-        allowedHeaders: ['Content-Type'],// 允许的请求头
-    }
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
 });
 
-//监听客户端socket连接事件
+//初始化对等连接用户数组
+const peers = [];
+
+//监听客户端socket连接
 io.on('connection', (socket) => {
-    socket.emit('connection', null);
-    console.log('新用户连接:', socket.id);
-})
+  socket.emit('connection', null);
+  console.log(`新用户加入房间:${socket.id}`);
+
+  //服务器保存注册的新用户数据
+  socket.on('register-new-user', (data) => {
+    peers.push({
+      username: data.username,
+      socketId: data.socketId,
+    });
+    console.log('注册新用户');
+    console.log(peers);
+  });
+});
