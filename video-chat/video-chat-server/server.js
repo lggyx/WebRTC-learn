@@ -6,7 +6,7 @@ const {v4: uuidv4} = require('uuid');
 
 //服务器初始化
 const app = express();
-const PORT=process.env.PORT || 3000;
+const PORT=process.env.PORT || 5000;
 
 //cors包解决跨域问题
 app.use(cors);
