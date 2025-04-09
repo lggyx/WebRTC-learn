@@ -2,7 +2,7 @@ import { useEffect,useRef } from "react";
 import { connectionWithSocket } from "./utils/wssConnection/wssConnection";
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import LoginPage from "./pages/LoginPage/LoginPage";
-import DashBoard from "./pages/Dashboard/DashBoard";
+import Dashboard from "./pages/Dashboard/Dashboard";
 function App() {
   const firstRenderRef = useRef(true);
   useEffect(() => {
@@ -17,7 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginPage/>} />
         <Route path="/login" element={<LoginPage/>} />
-        <Route path="/dashboard" element={<DashBoard/>} />
+        <Route path="/dashboard" element={<Dashboard/>} />
       </Routes>
     </Router>
   );
