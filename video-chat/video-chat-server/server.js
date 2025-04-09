@@ -27,6 +27,6 @@ const io = socket(server, {
 
 //监听客户端socket连接事件
 io.on('connection', (socket) => {
-    socket.emit('welcome', '欢迎来到视频聊天服务器！');
+    socket.emit('connection', null);
     console.log('新用户连接:', socket.id);
 })
