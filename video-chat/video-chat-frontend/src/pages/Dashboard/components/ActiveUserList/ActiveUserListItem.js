@@ -1,6 +1,5 @@
 import React from 'react';
-import userAvatar from '../../../resources/userAvatar.png';
-
+import userAvatar from '../../../../resources/user_avatar.png';
 function ActiveUserListItem({ activeUser }) {
   const handlerListItemPressed = () => {
     //点击活跃用户-进行呼叫

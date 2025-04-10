@@ -6,7 +6,7 @@ const broadcastEventTypes = {
   ACTIVE_USERS: 'ACTIVE_USERS',
   GROUP_CALL_ROOMS: 'GROUP_CALL_ROOMS',
 };
-const SERVER = 'http://localhost:5000';
+const SERVER = 'http://192.168.2.107:5000';
 
 let socket;
 
