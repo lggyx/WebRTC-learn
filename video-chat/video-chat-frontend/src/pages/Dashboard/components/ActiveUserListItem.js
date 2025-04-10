@@ -8,7 +8,7 @@ function ActiveUserListItem({ activeUser }) {
   return (
     <div className='active_user_list_item' onClick={handlerListItemPressed}>
       <div className='active_user_list_image_container'>
-        <img className='active_user_list_image' src={userAvatar} />
+        <img className='active_user_list_image' alt="活跃用户" src={userAvatar} />
       </div>
       <span className='active_user_list_text'>{activeUser.username}</span>
     </div>

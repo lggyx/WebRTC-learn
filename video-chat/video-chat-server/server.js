@@ -2,7 +2,7 @@
 const express = require('express');
 const socket = require('socket.io');
 const cors = require('cors');
-require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 //服务器初始化
 const app = express();
@@ -27,10 +27,16 @@ const io = socket(server, {
 //初始化对等连接用户数组
 const peers = [];
 
+//定义广播类型的常量
+const broadcastEventTypes = {
+  ACTIVE_USERS: 'ACTIVE_USERS',
+  GROUP_CALL_ROOMS: 'GROUP_CALL_ROOMS',
+};
+
 //监听客户端socket连接
 io.on('connection', (socket) => {
   socket.emit('connection', null);
-  console.log(`新用户加入房间:${socket.id}`);
+  console.log('新用户加入房间:'+socket.id);
 
   //服务器保存注册的新用户数据
   socket.on('register-new-user', (data) => {
@@ -40,5 +46,11 @@ io.on('connection', (socket) => {
     });
     console.log('注册新用户');
     console.log(peers);
+
+    //向所有连接到客户端用户广播，并发送活跃用户列表
+    io.sockets.emit('broadcast', {
+      event: broadcastEventTypes.ACTIVE_USERS,
+      activeUsers: peers,
+    });
   });
 });
