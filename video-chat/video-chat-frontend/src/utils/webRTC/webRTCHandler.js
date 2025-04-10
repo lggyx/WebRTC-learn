@@ -8,6 +8,7 @@ import {
   setCallRejected,
   setRemoteStream,
   setScrrenSharingActive,
+  resetCallDataState,
 } from '../../store/actions/callActions';
 import * as wss from '../wssConnection/wssConnection';
 
@@ -109,8 +110,8 @@ export const callToOtherUser = (calleeDetails) => {
 //处理从服务器返回的呼叫者的数据，并存储它的sockeId以及callerUsername
 export const handlePreOffer = (data) => {
   //判断是否不受客观通信因素影响
-  if (checkIfCallPossible) {
-    console.log(checkIfCallPossible);
+  if (checkIfCallPossible()) {
+    console.log(checkIfCallPossible());
     connectUserSocketId = data.callerSocketId;
     //更新store中的callerUsername
     store.dispatch(setCallerUsername(data.callerUsername));
@@ -283,15 +284,17 @@ export const hangUp = () => {
 };
 
 const resetCallDataAfterHangUp = () => {
-  store.dispatch(setRemoteStream(null));
-
   peerConnection.close();
   peerConnection = null;
   createPeerConnection();
   resetCallData();
+
   if (store.getState().call.screenSharingActive) {
     screenSharingStream.getTracks().forEach((track) => track.stop());
   }
+
+  //重置state状态中的数据
+  store.dispatch(resetCallDataState());
 };
 
 //定义呼叫重置函数
