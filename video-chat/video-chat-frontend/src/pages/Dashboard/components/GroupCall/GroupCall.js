@@ -9,11 +9,11 @@ const GroupCall = ({ callState, localStream }) => {
     webRTCGroupCallHandler.createNewGroupCall();
   };
   return (
-    <>
-      {localStream && callState !== callStates.CALL_IN_PROGRESS && (
-        <GroupCallButton onClickHandler={createRoom} label='创建房间' />
-      )}
-    </>
+      <>
+        {localStream && callState !== callStates.CALL_IN_PROGRESS && (
+            <GroupCallButton onClickHandler={createRoom} label='创建房间' />
+        )}
+      </>
   );
 };
 
