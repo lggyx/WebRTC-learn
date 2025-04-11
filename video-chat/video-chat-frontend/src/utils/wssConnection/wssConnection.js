@@ -56,6 +56,8 @@ export const connectWithSocket = () => {
   });
 };
 
+// 发送和直接呼叫相关的事件
+
 //注册新用户
 export const registerNewUser = (username) => {
   socket.emit('register-new-user', {
@@ -70,7 +72,7 @@ const handleBroadcastEvents = (data) => {
     case broadcastEventTypes.ACTIVE_USERS:
       // 过滤客户端本身的信息
       const activeUsers = data.activeUsers.filter(
-          (activeUser) => activeUser.socketId !== socket.id
+        (activeUser) => activeUser.socketId !== socket.id
       );
       // 派发action，保存活跃用户
       store.dispatch(dashboardActions.setActiveUsers(activeUsers));
@@ -108,4 +110,10 @@ export const sendWebRTCCandidate = (data) => {
 //发送挂断通知
 export const sendUserHangedUp = (data) => {
   socket.emit('user-hanged-up', data);
+};
+
+// 发送和群组呼叫相关的事件
+
+export const registerGroupCall = (data) => {
+  socket.emit('group-call-register', data);
 };
