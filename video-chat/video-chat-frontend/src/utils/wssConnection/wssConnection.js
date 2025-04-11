@@ -2,6 +2,7 @@ import socketClient from 'socket.io-client';
 import store from '../../store/store';
 import * as dashboardActions from '../../store/actions/dashboardActions';
 import * as webRTCHandler from '../webRTC/webRTCHandler';
+import * as webRTCGroupCallHandler from '../webRTC/webRTCGroupCallHandler';
 //定义广播类型的常量
 const broadcastEventTypes = {
   ACTIVE_USERS: 'ACTIVE_USERS',
@@ -54,9 +55,14 @@ export const connectWithSocket = () => {
   socket.on('user-hanged-up', () => {
     webRTCHandler.handleUserHangedUp();
   });
+
+  //监听群组呼叫相关内容
+  socket.on('group-call-join-request', (data) => {
+    webRTCGroupCallHandler.connectToNewUser(data);
+  });
 };
 
-// 发送和直接呼叫相关的事件
+/////////////////////////////////////发送和直接呼叫相关的事件///////////////////////////////////
 
 //注册新用户
 export const registerNewUser = (username) => {
@@ -72,10 +78,12 @@ const handleBroadcastEvents = (data) => {
     case broadcastEventTypes.ACTIVE_USERS:
       // 过滤客户端本身的信息
       const activeUsers = data.activeUsers.filter(
-        (activeUser) => activeUser.socketId !== socket.id
+          (activeUser) => activeUser.socketId !== socket.id
       );
       // 派发action，保存活跃用户
       store.dispatch(dashboardActions.setActiveUsers(activeUsers));
+    case broadcastEventTypes.GROUP_CALL_ROOMS:
+      store.dispatch(dashboardActions.setGroupCalls(data.groupCallRooms));
       break;
     default:
       break;
@@ -112,8 +120,12 @@ export const sendUserHangedUp = (data) => {
   socket.emit('user-hanged-up', data);
 };
 
-// 发送和群组呼叫相关的事件
+///////////////////////////////////发送和群组呼叫相关的事件///////////////////////////////////
 
 export const registerGroupCall = (data) => {
   socket.emit('group-call-register', data);
+};
+
+export const userWantsToJoinGroupCall = (data) => {
+  socket.emit('group-call-join-request', data);
 };
