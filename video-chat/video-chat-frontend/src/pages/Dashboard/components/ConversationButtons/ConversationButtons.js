@@ -1,93 +1,98 @@
 import React from 'react';
 import ConversationButton from './ConversationButton';
 import {
-    MdCallEnd,
-    MdMic,
-    MdMicOff,
-    MdVideocam,
-    MdVideocamOff,
-    MdVideoLabel,
-    MdCamera,
+  MdCallEnd,
+  MdMic,
+  MdMicOff,
+  MdVideocam,
+  MdVideocamOff,
+  MdVideoLabel,
+  MdCamera,
 } from 'react-icons/md';
 import {
-    hangUp,
-    switchForScreenSharingStream,
+  hangUp,
+  switchForScreenSharingStream,
 } from '../../../../utils/webRTC/webRTCHandler';
 const styles = {
-    buttonContainer: {
-        display: 'flex',
-        position: 'absolute',
-        bottom: '22%',
-        left: '35%',
-    },
-    icon: {
-        width: '25px',
-        height: '25px',
-        fill: '#e6e5e8',
-    },
+  buttonContainer: {
+    display: 'flex',
+    position: 'absolute',
+    bottom: '22%',
+    left: '35%',
+  },
+  icon: {
+    width: '25px',
+    height: '25px',
+    fill: '#e6e5e8',
+  },
 };
 
 const ConversationButtons = (props) => {
-    const {
-        localStream,
-        localCameraEnabled,
-        localMicrophoneEnabled,
-        setCameraEnabled,
-        setMicrophoneEnabled,
-        screenSharingActive,
-    } = props;
+  const {
+    localStream,
+    localCameraEnabled,
+    localMicrophoneEnabled,
+    setCameraEnabled,
+    setMicrophoneEnabled,
+    screenSharingActive,
+    groupCall,
+  } = props;
 
-    const handleMicButtonPressed = () => {
-        //控制mic
-        const micEnabled = localMicrophoneEnabled;
-        localStream.getAudioTracks()[0].enabled = !micEnabled;
-        setMicrophoneEnabled(!micEnabled);
-    };
+  const handleMicButtonPressed = () => {
+    //控制mic
+    const micEnabled = localMicrophoneEnabled;
+    localStream.getAudioTracks()[0].enabled = !micEnabled;
+    setMicrophoneEnabled(!micEnabled);
+  };
 
-    const handleCameraButtonPressed = () => {
-        //控制video
-        const cameraEnabled = localCameraEnabled;
-        localStream.getVideoTracks()[0].enabled = !cameraEnabled;
-        setCameraEnabled(!cameraEnabled);
-    };
+  const handleCameraButtonPressed = () => {
+    //控制video
+    const cameraEnabled = localCameraEnabled;
+    localStream.getVideoTracks()[0].enabled = !cameraEnabled;
+    setCameraEnabled(!cameraEnabled);
+  };
 
-    const handleScreenSharingButtonPressed = () => {
-        //控制共享屏幕
-        switchForScreenSharingStream();
-    };
+  const handleScreenSharingButtonPressed = () => {
+    //控制共享屏幕
+    switchForScreenSharingStream();
+  };
 
-    const handleHangedUpButtonPressed = () => {
-        //控制挂断
-        hangUp();
-    };
-    return (
-        <div style={styles.buttonContainer}>
-            <ConversationButton onClickHandler={handleMicButtonPressed}>
-                {localMicrophoneEnabled ? (
-                    <MdMic style={styles.icon} />
-                ) : (
-                    <MdMicOff style={styles.icon} />
-                )}
-            </ConversationButton>
-            <ConversationButton onClickHandler={handleHangedUpButtonPressed}>
-                <MdCallEnd style={styles.icon} />
-            </ConversationButton>
-            <ConversationButton onClickHandler={handleCameraButtonPressed}>
-                {localCameraEnabled ? (
-                    <MdVideocam style={styles.icon} />
-                ) : (
-                    <MdVideocamOff style={styles.icon} />
-                )}
-            </ConversationButton>
-            <ConversationButton onClickHandler={handleScreenSharingButtonPressed}>
-                {screenSharingActive ? (
-                    <MdCamera style={styles.icon} />
-                ) : (
-                    <MdVideoLabel style={styles.icon} />
-                )}
-            </ConversationButton>
-        </div>
-    );
+  const handleHangedUpButtonPressed = () => {
+    //控制挂断
+    hangUp();
+  };
+  return (
+    <div style={styles.buttonContainer}>
+      <ConversationButton onClickHandler={handleMicButtonPressed}>
+        {localMicrophoneEnabled ? (
+          <MdMic style={styles.icon} />
+        ) : (
+          <MdMicOff style={styles.icon} />
+        )}
+      </ConversationButton>
+      {!groupCall && (
+        <ConversationButton onClickHandler={handleHangedUpButtonPressed}>
+          <MdCallEnd style={styles.icon} />
+        </ConversationButton>
+      )}
+      <ConversationButton onClickHandler={handleCameraButtonPressed}>
+        {localCameraEnabled ? (
+          <MdVideocam style={styles.icon} />
+        ) : (
+          <MdVideocamOff style={styles.icon} />
+        )}
+      </ConversationButton>
+      {!groupCall && (
+        <ConversationButton onClickHandler={handleScreenSharingButtonPressed}>
+          {screenSharingActive ? (
+            <MdCamera style={styles.icon} />
+          ) : (
+            <MdVideoLabel style={styles.icon} />
+          )}
+        </ConversationButton>
+      )}
+    </div>
+  );
 };
 
 export default ConversationButtons;

@@ -23,15 +23,15 @@ function ActiveUserList({ activeUsers, callState }) {
   //   },
   // ];
   return (
-      <div className='active_user_list_container'>
-        {activeUsers.map((activeUser) => (
-            <ActiveUserListItem
-                key={activeUser.socketId}
-                activeUser={activeUser}
-                callState={callState}
-            />
-        ))}
-      </div>
+    <div className='active_user_list_container'>
+      {activeUsers.map((activeUser) => (
+        <ActiveUserListItem
+          key={activeUser.socketId}
+          activeUser={activeUser}
+          callState={callState}
+        />
+      ))}
+    </div>
   );
 }
 

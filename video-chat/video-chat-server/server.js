@@ -80,6 +80,16 @@ io.on('connection', (socket) => {
       event: broadcastEventTypes.ACTIVE_USERS,
       activeUsers: peers,
     });
+
+    //关闭host创建所创建的群组呼叫房间
+    groupCallRooms = groupCallRooms.filter(
+      (room) => room.socketId !== socket.id
+    );
+    //向其他人进行广播，更新groupCallroom列表
+    io.sockets.emit('broadcast', {
+      event: broadcastEventTypes.GROUP_CALL_ROOMS,
+      groupCallRooms,
+    });
   });
 
   //监听客户端发送过来的预呼叫并获取data，传递给应答方
@@ -160,5 +170,27 @@ io.on('connection', (socket) => {
 
     //加入房间
     socket.join(data.roomId);
+  });
+
+  socket.on('group-call-user-left', (data) => {
+    //从房间中移除用户
+    socket.leave(data.roomId);
+
+    //通知房间中的其他用户有人离开
+    io.to(data.roomId).emit('group-call-user-left', {
+      streamId: data.streamId,
+    });
+  });
+
+  socket.on('group-call-closed-by-host', (data) => {
+    //关闭host创建所创建的群组呼叫房间
+    groupCallRooms = groupCallRooms.filter(
+      (room) => room.peerId !== data.peerId
+    );
+    //向其他人进行广播，更新groupCallroom列表
+    io.sockets.emit('broadcast', {
+      event: broadcastEventTypes.GROUP_CALL_ROOMS,
+      groupCallRooms,
+    });
   });
 });

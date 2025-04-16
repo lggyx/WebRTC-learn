@@ -9,6 +9,7 @@ import {
   setRemoteStream,
   setScrrenSharingActive,
   resetCallDataState,
+  setMessage,
 } from '../../store/actions/callActions';
 import * as wss from '../wssConnection/wssConnection';
 
@@ -22,7 +23,10 @@ const preOfferAnswers = {
 
 //默认定义
 const defaultConstrains = {
-  video: true,
+  video: {
+    width: 480,
+    height: 360,
+  },
   audio: true,
 };
 
@@ -39,20 +43,20 @@ const configuration = {
 let connectUserSocketId;
 let rejectedReason;
 let peerConnection;
-
+let dataChannel;
 //获取用户的本地媒体流并保存到store中
 export const getLocalStream = () => {
   navigator.mediaDevices
-      .getUserMedia(defaultConstrains)
-      .then((stream) => {
-        store.dispatch(setLocalStream(stream));
-        store.dispatch(setCallState(callStates.CALL_AVAILABLE));
-        createPeerConnection();
-      })
-      .catch((error) => {
-        console.log('尝试获取访问权限以获取本地媒体流时出错');
-        console.log(error);
-      });
+    .getUserMedia(defaultConstrains)
+    .then((stream) => {
+      store.dispatch(setLocalStream(stream));
+      store.dispatch(setCallState(callStates.CALL_AVAILABLE));
+      createPeerConnection();
+    })
+    .catch((error) => {
+      console.log('尝试获取访问权限以获取本地媒体流时出错');
+      console.log(error);
+    });
 };
 
 //创建对等连接
@@ -70,6 +74,24 @@ const createPeerConnection = () => {
   peerConnection.ontrack = ({ streams: [stream] }) => {
     //通过dispatch存储的stream到store中
     store.dispatch(setRemoteStream(stream));
+  };
+
+  //处理传入数据通道的信息
+  peerConnection.ondatachannel = (event) => {
+    const dataChannel = event.channel;
+    //监听dataChannel是否开启
+    dataChannel.onopen = () => {
+      console.log('对等连接已经准备好接收数据通道的消息');
+    };
+    dataChannel.onmessage = (event) => {
+      store.dispatch(setMessage(true, event.data));
+    };
+  };
+
+  //创建数据通道
+  dataChannel = peerConnection.createDataChannel('chat');
+  dataChannel.onopen = () => {
+    console.log('聊天数据通道已经成功开启');
   };
 
   //监听icecandidate事件并将更改后的描述信息传送给remote远端RTCPeerConnection并更新远端设备源
@@ -129,8 +151,8 @@ export const handlePreOffer = (data) => {
 //创建验证通信可能的函数
 export const checkIfCallPossible = () => {
   if (
-      store.getState().call.localStream === null ||
-      store.getState().call.callState !== callStates.CALL_AVAILABLE
+    store.getState().call.localStream === null ||
+    store.getState().call.callState !== callStates.CALL_AVAILABLE
   ) {
     //客观因素影响无法通信
     return false;
@@ -155,10 +177,10 @@ export const handlePreOfferAnswer = (data) => {
 
     //dispatch 拒绝接听的action
     store.dispatch(
-        setCallRejected({
-          rejected: true,
-          reason: rejectedReason,
-        })
+      setCallRejected({
+        rejected: true,
+        reason: rejectedReason,
+      })
     );
 
     //重置data
@@ -242,8 +264,8 @@ export const switchForScreenSharingStream = async () => {
       const senders = peerConnection.getSenders();
       //遍历每个sender,找到类型为video的sender
       const sender = senders.find(
-          (sender) =>
-              sender.track.kind === screenSharingStream.getVideoTracks()[0].kind
+        (sender) =>
+          sender.track.kind === screenSharingStream.getVideoTracks()[0].kind
       );
       //替换远端视频
       sender.replaceTrack(screenSharingStream.getVideoTracks()[0]);
@@ -255,8 +277,7 @@ export const switchForScreenSharingStream = async () => {
     const senders = peerConnection.getSenders();
     //遍历每个sender,找到类型为video的sender
     const sender = senders.find(
-        (sender) =>
-            sender.track.kind === screenSharingStream.getVideoTracks()[0].kind
+      (sender) => sender.track.kind === localStream.getVideoTracks()[0].kind
     );
     //替换远端视频
     sender.replaceTrack(localStream.getVideoTracks()[0]);
@@ -301,4 +322,9 @@ const resetCallDataAfterHangUp = () => {
 export const resetCallData = () => {
   connectUserSocketId = null;
   store.dispatch(setCallState(callStates.CALL_AVAILABLE));
+};
+
+//定义传递信息的函数
+export const sendMessageUsingDataChannel = (message) => {
+  dataChannel.send(message);
 };

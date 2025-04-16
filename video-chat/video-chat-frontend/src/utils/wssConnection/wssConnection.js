@@ -60,6 +60,11 @@ export const connectWithSocket = () => {
   socket.on('group-call-join-request', (data) => {
     webRTCGroupCallHandler.connectToNewUser(data);
   });
+
+  //监听服务器发送的有用户离开的通知
+  socket.on('group-call-user-left', (data) => {
+    webRTCGroupCallHandler.removeInactiveStream(data);
+  });
 };
 
 /////////////////////////////////////发送和直接呼叫相关的事件///////////////////////////////////
@@ -78,12 +83,29 @@ const handleBroadcastEvents = (data) => {
     case broadcastEventTypes.ACTIVE_USERS:
       // 过滤客户端本身的信息
       const activeUsers = data.activeUsers.filter(
-          (activeUser) => activeUser.socketId !== socket.id
+        (activeUser) => activeUser.socketId !== socket.id
       );
       // 派发action，保存活跃用户
       store.dispatch(dashboardActions.setActiveUsers(activeUsers));
+      break;
     case broadcastEventTypes.GROUP_CALL_ROOMS:
-      store.dispatch(dashboardActions.setGroupCalls(data.groupCallRooms));
+      const groupCallRooms = data.groupCallRooms?.filter(
+        (room) => room.socketId !== socket.id
+      );
+
+      const activeGroupCallRoomId =
+        webRTCGroupCallHandler.checkActiveGroupCall();
+
+      if (activeGroupCallRoomId) {
+        const room = groupCallRooms.find(
+          (room) => room.roomId === activeGroupCallRoomId
+        );
+        if (!room) {
+          webRTCGroupCallHandler.clearGroupData();
+        }
+      }
+
+      store.dispatch(dashboardActions.setGroupCalls(groupCallRooms));
       break;
     default:
       break;
@@ -128,4 +150,11 @@ export const registerGroupCall = (data) => {
 
 export const userWantsToJoinGroupCall = (data) => {
   socket.emit('group-call-join-request', data);
+};
+
+export const userLeftGroupCall = (data) => {
+  socket.emit('group-call-user-left', data);
+};
+export const groupCallCloseByHost = (data) => {
+  socket.emit('group-call-closed-by-host', data);
 };

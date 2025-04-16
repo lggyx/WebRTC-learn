@@ -4,17 +4,17 @@ import GroupCallRoomsListItem from './GroupCallRoomsListItem';
 import './GroupCallRoomsList.css';
 
 const GroupCallRoomsList = ({ groupCallRooms }) => {
-    // console.log(groupCallRooms);
-    return (
-        <>
-            {groupCallRooms?.map((room) => (
-                <GroupCallRoomsListItem key={room.roomId} room={room} />
-            ))}
-        </>
-    );
+  // console.log(groupCallRooms);
+  return (
+    <>
+      {groupCallRooms?.map((room) => (
+        <GroupCallRoomsListItem key={room.roomId} room={room} />
+      ))}
+    </>
+  );
 };
 
 const mapStateToProps = ({ dashboard }) => ({
-    ...dashboard,
+  ...dashboard,
 });
 export default connect(mapStateToProps)(GroupCallRoomsList);
